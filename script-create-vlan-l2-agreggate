@@ -1,0 +1,39 @@
+---
+- name: Create vlans l2 Cajamar
+  hosts: SWITCHS
+  gather_facts: yes
+  connection: local
+
+  vars_prompt:
+  - name: "mgmt_username"
+    prompt: "Username"
+    private: no
+  - name: "mgmt_password"
+    prompt: "Password"
+
+  tasks:
+   - name: SYS | Define provider
+     set_fact:
+       provider:
+        host: "{{ inventory_hostname }}"
+        username: "{{ mgmt_username }}"
+        password: "{{ mgmt_password }}"
+        port: 22
+
+   - name: Add vlan using aggregate
+     ios_vlan:
+      provider: "{{ provider }}"
+      aggregate:
+        - { vlan_id: 2500, name: PARTNER_FABRICAS, state: present }
+        - { vlan_id: 2501, name: PARTNER_COORPORATIVO, state: present }
+        - { vlan_id: 2502, name: PARTNER_UTILIDADE_1, state: present }
+        - { vlan_id: 2503, name: PARTNER_UTILIDADE_2, state: present }
+   
+   - name: show snmp location
+     ios_command:
+      provider: "{{ provider }}"
+      commands:
+         - wr
+    
+
+
